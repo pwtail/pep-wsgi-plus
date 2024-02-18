@@ -51,5 +51,7 @@ def application(environ, start_response, resume):
 
 ## Discussion
 
+You can express your sentiment on whether Python needs this, using the comments sidebar on the right
+
 
 :::
