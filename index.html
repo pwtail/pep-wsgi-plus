@@ -89,7 +89,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#what-is-void-elixir" id="toc-what-is-void-elixir" class="nav-link active" data-scroll-target="#what-is-void-elixir">What is void elixir</a></li>
+  <li><a href="#organizing-source-files" id="toc-organizing-source-files" class="nav-link active" data-scroll-target="#organizing-source-files">organizing source files</a></li>
   <li><a href="#why-is-it-called-void" id="toc-why-is-it-called-void" class="nav-link" data-scroll-target="#why-is-it-called-void">Why is it called void?</a></li>
   <li><a href="#is-this-just-a-convention-for-organizing-source-files" id="toc-is-this-just-a-convention-for-organizing-source-files" class="nav-link" data-scroll-target="#is-this-just-a-convention-for-organizing-source-files">Is this just a convention for organizing source files?</a></li>
   <li><a href="#whats-the-value-in-it" id="toc-whats-the-value-in-it" class="nav-link" data-scroll-target="#whats-the-value-in-it">What’s the value in it?</a></li>
@@ -107,8 +107,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- -*- mode: gfm -*- -->
 <p><a href="void.webp" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="void.webp" class="img-fluid"></a></p>
 <p><br></p>
-<section id="what-is-void-elixir" class="level2">
-<h2 class="anchored" data-anchor-id="what-is-void-elixir">What is void elixir</h2>
+<section id="organizing-source-files" class="level2">
+<h2 class="anchored" data-anchor-id="organizing-source-files">organizing source files</h2>
 <p>As we know, in Elixir modules are not bound to source files in any way. This is a deliberate decision that plays well with Elixir’s rich macro support. However, it can lead to complicated code.</p>
 <p>Void Elixir, or <em>void.ex</em>, is a convention that sets 1:1 binding between the module and the source file. Indirectly, it also discourages the excess relience on macros and promotes simplicity and clean code.</p>
 <p>The convention is quite intuitive: “higher-order” modules are mapped to directories, and leaf modules - to <code>*.ex</code> files. The contents of a “higher-order” module should be placed in the <code>void.ex</code> file of its corresponding directory.</p>
@@ -562,7 +562,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
-<script>var lightboxQuarto = GLightbox({"openEffect":"zoom","selector":".lightbox","descPosition":"bottom","loop":false,"closeEffect":"zoom"});
+<script>var lightboxQuarto = GLightbox({"openEffect":"zoom","closeEffect":"zoom","selector":".lightbox","loop":false,"descPosition":"bottom"});
 window.onload = () => {
   lightboxQuarto.on('slide_before_load', (data) => {
     const { slideIndex, slideNode, slideConfig, player, trigger } = data;
