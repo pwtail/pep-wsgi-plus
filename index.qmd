@@ -48,7 +48,7 @@ def application(environ, start_response):
     yield b'Hi!\n'
 ```
 
-It's worth noting that the WSGI+ application bears the responsibility of handling both the result and any potential errors stemming from the Future object. On the other hand, ensuring the proper propagation of the unhandled errors lies with the WSGI+ server.
+It's worth noting that the WSGI+ application bears the responsibility of handling both the result and any potential errors during the Future execution. On the other hand, ensuring the proper propagation of the unhandled errors lies with the WSGI+ server.
 
 
 ### Proof of Concept
