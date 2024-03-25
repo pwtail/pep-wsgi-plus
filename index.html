@@ -2,12 +2,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.550">
+<meta name="generator" content="quarto-1.5.26">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Vitalii Abetkin">
+<meta name="dcterms.date" content="2024-03-25">
 
-<title>index</title>
+<title>RFC: WSGI+</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -67,9 +69,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
-<script src="site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
-<link href="site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
-<link href="site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
 <script async="" src="https://hypothes.is/embed.js"></script>
 <script>
   window.document.addEventListener("DOMContentLoaded", function (_event) {
@@ -78,97 +77,154 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </script>
 
 
+<meta name="citation_title" content="RFC: WSGI+">
+<meta name="citation_author" content="Vitalii Abetkin">
+<meta name="citation_publication_date" content="2024-03-25">
+<meta name="citation_cover_date" content="2024-03-25">
+<meta name="citation_year" content="2024">
+<meta name="citation_online_date" content="2024-03-25">
 <meta name="citation_language" content="en">
 </head>
 
 <body>
 
-<div id="quarto-content" class="page-columns page-rows-contents page-layout-article toc-left">
+<header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">RFC: WSGI+</h1>
+            <p class="subtitle lead">Enhancing WSGI with Suspend/Resume</p>
+          </div>
+
+    
+    <div class="quarto-title-meta-container">
+      <div class="quarto-title-meta-column-start">
+        
+        <div class="quarto-title-meta">
+
+                <div>
+            <div class="quarto-title-meta-heading">Author</div>
+            <div class="quarto-title-meta-contents">
+                        <p>Vitalii Abetkin <a href="mailto:abvit89s@gmail.com" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> </p>
+                      </div>
+          </div>
+                
+                <div>
+            <div class="quarto-title-meta-heading">Published</div>
+            <div class="quarto-title-meta-contents">
+              <p class="date">March 25, 2024</p>
+            </div>
+          </div>
+          
+                
+              </div>
+      </div>
+      <div class="quarto-title-meta-column-end quarto-other-formats-target">
+      </div>
+    </div>
+
+
+
+    <div class="quarto-other-links-text-target">
+    </div>  </div>
+</header><div id="quarto-content" class="page-columns page-rows-contents page-layout-article toc-left">
 <div id="quarto-sidebar-toc-left" class="sidebar toc-left">
   <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#organizing-source-files" id="toc-organizing-source-files" class="nav-link active" data-scroll-target="#organizing-source-files">organizing source files</a></li>
-  <li><a href="#why-is-it-called-void" id="toc-why-is-it-called-void" class="nav-link" data-scroll-target="#why-is-it-called-void">Why is it called void?</a></li>
-  <li><a href="#is-this-just-a-convention-for-organizing-source-files" id="toc-is-this-just-a-convention-for-organizing-source-files" class="nav-link" data-scroll-target="#is-this-just-a-convention-for-organizing-source-files">Is this just a convention for organizing source files?</a></li>
-  <li><a href="#whats-the-value-in-it" id="toc-whats-the-value-in-it" class="nav-link" data-scroll-target="#whats-the-value-in-it">What’s the value in it?</a></li>
-  <li><a href="#who-is-it-for" id="toc-who-is-it-for" class="nav-link" data-scroll-target="#who-is-it-for">Who is it for?</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#motivation" id="toc-motivation" class="nav-link" data-scroll-target="#motivation">Motivation</a></li>
+  <li><a href="#proposal" id="toc-proposal" class="nav-link" data-scroll-target="#proposal">Proposal</a>
+  <ul class="collapse">
+  <li><a href="#wsgi-spec-extension" id="toc-wsgi-spec-extension" class="nav-link" data-scroll-target="#wsgi-spec-extension">WSGI Spec Extension</a></li>
+  <li><a href="#implementation" id="toc-implementation" class="nav-link" data-scroll-target="#implementation">Implementation</a></li>
+  <li><a href="#proof-of-concept" id="toc-proof-of-concept" class="nav-link" data-scroll-target="#proof-of-concept">Proof of Concept</a></li>
+  <li><a href="#common-use-case" id="toc-common-use-case" class="nav-link" data-scroll-target="#common-use-case">Common Use Case</a></li>
+  <li><a href="#non-goals" id="toc-non-goals" class="nav-link" data-scroll-target="#non-goals">Non-Goals</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  <li><a href="#feedback" id="toc-feedback" class="nav-link" data-scroll-target="#feedback">Feedback</a></li>
   </ul>
 </nav>
 </div>
-<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
 </div>
 <main class="content quarto-banner-title-block" id="quarto-document-content">
 
 
 
+  
 
-<!-- -*- mode: gfm -*- -->
-<p><a href="void.webp" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="void.webp" class="img-fluid"></a></p>
-<p><br></p>
-<section id="organizing-source-files" class="level2">
-<h2 class="anchored" data-anchor-id="organizing-source-files">organizing source files</h2>
-<p>As we know, in Elixir modules are not bound to source files in any way. This is a deliberate decision that plays well with Elixir’s rich macro support. However, it can lead to complicated code.</p>
-<p>Void Elixir, or <em>void.ex</em>, is a convention that sets 1:1 binding between the module and the source file. Indirectly, it also discourages the excess relience on macros and promotes simplicity and clean code.</p>
-<p>The convention is quite intuitive: “higher-order” modules are mapped to directories, and leaf modules - to <code>*.ex</code> files. The contents of a “higher-order” module should be placed in the <code>void.ex</code> file of its corresponding directory.</p>
-<p>Let’s see an example. Suppose we have “The Three Little Pigs” project, which aims to help the pigs with various aspects of their life. Here is what the source files could be:</p>
-<pre><code>PigLife
-├── House
-│   ├── Brics.ex
-│   ├── Sticks.ex
-│   ├── Straw.ex
-│   └── void.ex
-├── Music
-│   ├── Fiddle.ex
-│   ├── Flute.ex
-│   ├── Piano.ex
-│   └── void.ex
-└── void.ex</code></pre>
-<p>As you see, every directory contains leaf modules, subdirectories and the <code>void.ex</code> file. The name of the module the latter contains, is the path of the directory it resides in:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode elixir code-with-copy"><code class="sourceCode elixir"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># PigLife/House/void.ex</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">defmodule</span> <span class="cn">PigLife</span><span class="op">.</span><span class="cn">House</span> <span class="kw">do</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="im">alias</span> <span class="cn">PigLife</span><span class="op">.</span><span class="cn">House</span><span class="op">.</span><span class="cn">Straw</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="im">alias</span> <span class="cn">PigLife</span><span class="op">.</span><span class="cn">House</span><span class="op">.</span><span class="cn">Sticks</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="im">alias</span> <span class="cn">PigLife</span><span class="op">.</span><span class="cn">House</span><span class="op">.</span><span class="cn">Bricks</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> build<span class="fu">(</span>laziness<span class="fu">)</span> <span class="kw">do</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="kw">case</span> laziness <span class="kw">do</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="dv">5</span> <span class="op">-&gt;</span> <span class="cn">Straw</span><span class="op">.</span>build<span class="fu">()</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="dv">4</span> <span class="op">-&gt;</span> <span class="cn">Sticks</span><span class="op">.</span>build<span class="fu">()</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="dv">3</span> <span class="op">-&gt;</span> <span class="cn">Bricks</span><span class="op">.</span>build<span class="fu">()</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="kw">end</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Notice the lack of indent after <code>defmodule</code>? That’s the code style to use with <em>void.ex</em>.</p>
+
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>WSGI (Web Server Gateway Interface) is a widely-used specification for Python web applications. However, it lacks native support for asynchronous operations, leading to challenges in handling tasks with undefined durations, such as network requests.</p>
+<p>This RFC proposes WSGI+, an extension to the WSGI specification, enabling applications to suspend and resume execution during asynchronous operations.</p>
 </section>
-<section id="why-is-it-called-void" class="level2">
-<h2 class="anchored" data-anchor-id="why-is-it-called-void">Why is it called void?</h2>
-<p>I think you have figured that out by now: for a regular leaf-module, to get its name, you concatenate its directory path to its filename. For <code>void.ex</code>, on the other hand, you just take its directory path. Or, concatenate it with void.</p>
+<section id="motivation" class="level2">
+<h2 class="anchored" data-anchor-id="motivation">Motivation</h2>
+<p>Many modern web applications require performing asynchronous tasks, such as making HTTP requests. Current WSGI servers are blocking, which can lead to timeouts and scalability issues when handling such tasks.</p>
+<p>By introducing suspend/resume functionality, WSGI+ aims to address these limitations while maintaining compatibility with existing WSGI applications and servers.</p>
 </section>
-<section id="is-this-just-a-convention-for-organizing-source-files" class="level2">
-<h2 class="anchored" data-anchor-id="is-this-just-a-convention-for-organizing-source-files">Is this just a convention for organizing source files?</h2>
-<p>It is. No, not only that: also, the lack of indent after <code>defmodule</code>. Indeed, the indent is not needed anymore: otherwise, the whole module would be indented.</p>
-<p><code>defmodule</code> in Elixir gives a name to a module. Hovewer, with <em>void.ex</em>, the module name can be easily derived from its filename - thus, isn’t too valuable.</p>
-</section>
-<section id="whats-the-value-in-it" class="level2">
-<h2 class="anchored" data-anchor-id="whats-the-value-in-it">What’s the value in it?</h2>
-<p>This is the most interesting part.</p>
+<section id="proposal" class="level2">
+<h2 class="anchored" data-anchor-id="proposal">Proposal</h2>
+<section id="wsgi-spec-extension" class="level3">
+<h3 class="anchored" data-anchor-id="wsgi-spec-extension">WSGI Spec Extension</h3>
 <ul>
-<li><p>Having multiple modules per file encourages using modules for things other than just holding functions, leading to all sorts of alchemy. Binding a module to a file, on the other hand, leaves less room for <code>__using__</code> the compile-time magic.</p></li>
-<li><p>Declaring “use” on a per-file basis will make it less hermetic and thus less attractive.</p></li>
-<li><p>No indent after <code>defmodule</code> will help convey the idea that it should just say the module name, no more.</p></li>
-<li><p>Last but not least, having a predictable file structure makes your code more transparent and easier to navigate through.</p></li>
+<li>Extend the WSGI specification to support suspension and resumption of application execution.</li>
+<li>Allow WSGI applications to yield a special value (e.g., a <code>Future</code> object) to indicate suspension during asynchronous operations.</li>
+<li>Resume application execution when the asynchronous task completes.</li>
 </ul>
-<p>Modules should be just the containers of functions, like it is in Erlang! Void the insanity, simplicity is bliss!</p>
 </section>
-<section id="who-is-it-for" class="level2">
-<h2 class="anchored" data-anchor-id="who-is-it-for">Who is it for?</h2>
-<p>It’s for everybody who loves simplicity and clean code. But especially - for erlangers that start to write Elixir and are shocked by the amount of keywords and custom syntax. Keep calm and stick to the Erlang way!</p>
-<p>Have an opinion? Let’s <a href="https://github.com/pwtail/void.ex/discussions/1">discuss</a>! Don’t forget to give it a star!</p>
+<section id="implementation" class="level3">
+<h3 class="anchored" data-anchor-id="implementation">Implementation</h3>
+<p>Here is a rough sketch.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> concurrent.futures <span class="im">import</span> Future</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> application(environ, start_response):</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># going to be suspended</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    fut: Future <span class="op">=</span> defer_to_another_thread()</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">yield</span> fut</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># gets resumed</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    start_response(<span class="st">'200 OK'</span>, [(<span class="st">'Content-type'</span>, <span class="st">'text/plain'</span>)])</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">yield</span> <span class="st">b'Hi!</span><span class="ch">\n</span><span class="st">'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="proof-of-concept" class="level3">
+<h3 class="anchored" data-anchor-id="proof-of-concept">Proof of Concept</h3>
+<p>A <a href="https://github.com/pwtail/gunicorn/pull/1/files#diff-9818e6c0e3d6054dc383f77ce881ba79f8090a904fb3abd9892306f096e58319">proof of concept</a> implementation is provided for Gunicorn.</p>
+</section>
+<section id="common-use-case" class="level3">
+<h3 class="anchored" data-anchor-id="common-use-case">Common Use Case</h3>
+<p>WSGI+ addresses the common use case of applications making a lot of HTTP requests by:</p>
+<ul>
+<li>Allowing applications to perform asynchronous operations without blocking.</li>
+<li>Providing an alternative to increasing timeouts or thread pool sizes.</li>
+</ul>
+<table class="table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 79%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><img src="note.jpeg" style="width:99px"></td>
+<td>This approach may be an overkill.<br><br> If your app makes HTTP requests just occasionally, <br> using a blocking client like <code>requests</code> is probably fine.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="non-goals" class="level3">
+<h3 class="anchored" data-anchor-id="non-goals">Non-Goals</h3>
+<p>The primary goal of WSGI+ is to enhance WSGI with suspend/resume functionality. Further extensions to the WSGI specification are considered out of scope.</p>
+</section>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>WSGI+ offers a pragmatic solution for integrating asynchronous operations into WSGI applications, thereby improving performance and scalability without requiring a transition to fully asynchronous frameworks.</p>
+</section>
+<section id="feedback" class="level2">
+<h2 class="anchored" data-anchor-id="feedback">Feedback</h2>
+<p>Community feedback and collaboration are essential for refining and finalizing the WSGI+ specification. Please use the annotation sidebar from the top-right corner or join the <a href="https://github.com/pwtail/wsgi_plus/discussions/1">discussion</a>.</p>
 </section>
 
 </main>
@@ -208,18 +264,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -251,7 +296,47 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
   function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
@@ -286,7 +371,11 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
     });
   }
   const xrefs = window.document.querySelectorAll('a.quarto-xref');
@@ -561,31 +650,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
-<script>var lightboxQuarto = GLightbox({"loop":false,"openEffect":"zoom","descPosition":"bottom","selector":".lightbox","closeEffect":"zoom"});
-window.onload = () => {
-  lightboxQuarto.on('slide_before_load', (data) => {
-    const { slideIndex, slideNode, slideConfig, player, trigger } = data;
-    const href = trigger.getAttribute('href');
-    if (href !== null) {
-      const imgEl = window.document.querySelector(`a[href="${href}"] img`);
-      if (imgEl !== null) {
-        const srcAttr = imgEl.getAttribute("src");
-        if (srcAttr && srcAttr.startsWith("data:")) {
-          slideConfig.href = srcAttr;
-        }
-      }
-    } 
-  });
-
-  lightboxQuarto.on('slide_after_load', (data) => {
-    const { slideIndex, slideNode, slideConfig, player, trigger } = data;
-    if (window.Quarto?.typesetMath) {
-      window.Quarto.typesetMath(slideNode);
-    }
-  });
-
-};
-          </script>
 
 
 
