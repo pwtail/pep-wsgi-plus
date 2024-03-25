@@ -48,6 +48,9 @@ def application(environ, start_response):
     yield b'Hi!\n'
 ```
 
+It's worth noting that the WSGI+ application bears the responsibility of handling both the result and any potential errors stemming from the Future object. On the other hand, ensuring the proper propagation of the unhandled errors lies with the WSGI+ server.
+
+
 ### Proof of Concept
 
 A [proof of concept](https://github.com/pwtail/gunicorn/pull/1/files#diff-9818e6c0e3d6054dc383f77ce881ba79f8090a904fb3abd9892306f096e58319) implementation is provided for Gunicorn.
