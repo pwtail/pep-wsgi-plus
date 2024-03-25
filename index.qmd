@@ -80,4 +80,4 @@ WSGI+ offers a pragmatic solution for integrating asynchronous operations into W
 
 ## Feedback
 
-Community feedback and collaboration are essential for refining and finalizing the WSGI+ specification. Please use the annotation sidebar from the top-right corner or join the [discussion](https://github.com/pwtail/wsgi_plus/discussions/1).
+Community feedback and collaboration are essential for refining and finalizing the WSGI+ specification. Please use the annotation sidebar from the top-right corner, or join the [discussion](https://github.com/pwtail/wsgi_plus/discussions/1).
