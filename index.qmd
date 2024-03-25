@@ -1,6 +1,6 @@
 ---
 title: "RFC: WSGI+"
-subtitle: "Adding suspend/resume capability to WSGI applications"
+subtitle: "Enhancing WSGI with Suspend/Resume"
 format: html
 author:
   - name: Vitalii Abetkin
@@ -10,48 +10,74 @@ date: last-modified
 number-sections: false
 ---
 
-## Abstract
-
-dsada
 
 ## Introduction
 
-Based on data up to and including 1971, eruptions on La Palma happen every
+WSGI (Web Server Gateway Interface) is a widely-used specification for Python web applications. However, it lacks native support for asynchronous operations, leading to challenges in handling tasks with undefined durations, such as network requests.
+
+This RFC proposes WSGI+, an extension to the WSGI specification, enabling applications to suspend and resume execution during asynchronous operations.
 
 ## Motivation
 
-## Rationale
+Many modern web applications require performing asynchronous tasks, such as making HTTP requests. Current WSGI servers are blocking, which can lead to timeouts and scalability issues when handling such tasks.
+
+By introducing suspend/resume functionality, WSGI+ aims to address these limitations while maintaining compatibility with existing WSGI applications and servers.
+
+
+## Proposal
+
+### WSGI Spec Extension
+
+- Extend the WSGI specification to support suspension and resumption of application execution.
+- Allow WSGI applications to yield a special value (e.g., a `Future` object) to indicate suspension during asynchronous operations.
+- Resume application execution when the asynchronous task completes.
+
+### Implementation
+
+Here is a rough sketch.
 
 ```python
-def application(environ, start_response, resume):
-    def cb():
-        resume()
-        timer.cancel()
-    timer = Timer(10.0, cb)
-    timer.start()
-    yield resume
-    body = b'Dzozdra!\n'
-    status = '200 OK'
-    headers = [('Content-type', 'text/plain')]
-    start_response(status, headers)
-    yield body
+from concurrent.futures import Future
 
-
+def application(environ, start_response):
+    # going to be suspended
+    fut: Future = defer_to_another_thread()
+    yield fut
+    # gets resumed
+    start_response('200 OK', [('Content-type', 'text/plain')])
+    yield b'Hi!\n'
 ```
 
-> **_NOTE:_**  The note content.
+### Proof of Concept
 
-## Proof of concept
+A [proof of concept](https://github.com/pwtail/gunicorn/pull/1/files#diff-9818e6c0e3d6054dc383f77ce881ba79f8090a904fb3abd9892306f096e58319) implementation is provided for Gunicorn.
 
-## Application side
+### Common Use Case
 
-## Value
+WSGI+ addresses the common use case of applications making a lot of HTTP requests by:
 
-## Backwards Compatibility
-
-## Discussion
-
-You can express your sentiment on whether Python needs this, using the comments sidebar on the right
+- Allowing applications to perform asynchronous operations without blocking.
+- Providing an alternative to increasing timeouts or thread pool sizes.
 
 
-:::
+
++--------------+----------------------------------------------------------+
+|<img src=     |This approach may be an overkill.<br><br>                 |
+|"note.jpeg"   | If your                                                  |
+|style=        |app makes HTTP requests just occasionally, <br>           |
+|"width:99px"> |using a blocking client like `requests` is probably fine. |
+|              |                                                          |
++--------------+----------------------------------------------------------+
+
+
+### Non-Goals
+
+The primary goal of WSGI+ is to enhance WSGI with suspend/resume functionality. Further extensions to the WSGI specification are considered out of scope.
+
+## Conclusion
+
+WSGI+ offers a pragmatic solution for integrating asynchronous operations into WSGI applications, thereby improving performance and scalability without requiring a transition to fully asynchronous frameworks.
+
+## Feedback
+
+Community feedback and collaboration are essential for refining and finalizing the WSGI+ specification. Please use the annotation sidebar from the top-right corner or join the [discussion](https://github.com/pwtail/wsgi_plus/discussions/1).
