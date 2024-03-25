@@ -34,7 +34,7 @@ By introducing suspend/resume functionality, WSGI+ aims to address these limitat
 
 ### Implementation
 
-For a concise sketch, we'll simplify the process while maintaining clarity.
+For a concise sketch, we'll simplify the process.
 
 ```python
 from concurrent.futures import Future
