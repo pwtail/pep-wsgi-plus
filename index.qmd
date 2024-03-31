@@ -37,8 +37,6 @@ By introducing suspend/resume functionality, WSGI+ aims to address these limitat
 For a concise sketch, we'll simplify the process.
 
 ```python
-from concurrent.futures import Future
-
 def application(environ, start_response):
     # going to be suspended
     fut: Future = defer_to_another_thread()
@@ -47,6 +45,8 @@ def application(environ, start_response):
     start_response('200 OK', [('Content-type', 'text/plain')])
     yield b'Hi!\n'
 ```
+
+In this proposal, Future can be of any kind, whether from `asyncio` or from `concurrent.futures`. For WSGI+, it's only important to know whether it was successful, and if not, to be able to fetch the traceback.
 
 It's worth noting that the WSGI+ application bears the responsibility of handling both the result and the potential errors during the Future execution. The WSGI+ server, on the other hand, will ensure the proper propagation of any unhandled errors.
 
