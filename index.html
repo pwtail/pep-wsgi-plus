@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.5.26">
+<meta name="generator" content="quarto-1.5.27">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Vitalii Abetkin">
-<meta name="dcterms.date" content="2024-03-25">
+<meta name="dcterms.date" content="2024-03-31">
 
 <title>RFC: WSGI+</title>
 <style>
@@ -79,10 +79,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <meta name="citation_title" content="RFC: WSGI+">
 <meta name="citation_author" content="Vitalii Abetkin">
-<meta name="citation_publication_date" content="2024-03-25">
-<meta name="citation_cover_date" content="2024-03-25">
+<meta name="citation_publication_date" content="2024-03-31">
+<meta name="citation_cover_date" content="2024-03-31">
 <meta name="citation_year" content="2024">
-<meta name="citation_online_date" content="2024-03-25">
+<meta name="citation_online_date" content="2024-03-31">
 <meta name="citation_language" content="en">
 </head>
 
@@ -111,7 +111,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
                 <div>
             <div class="quarto-title-meta-heading">Published</div>
             <div class="quarto-title-meta-contents">
-              <p class="date">March 25, 2024</p>
+              <p class="date">March 31, 2024</p>
             </div>
           </div>
           
@@ -179,15 +179,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="implementation" class="level3">
 <h3 class="anchored" data-anchor-id="implementation">Implementation</h3>
 <p>For a concise sketch, we’ll simplify the process.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> concurrent.futures <span class="im">import</span> Future</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> application(environ, start_response):</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># going to be suspended</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    fut: Future <span class="op">=</span> defer_to_another_thread()</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">yield</span> fut</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># gets resumed</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    start_response(<span class="st">'200 OK'</span>, [(<span class="st">'Content-type'</span>, <span class="st">'text/plain'</span>)])</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">yield</span> <span class="st">b'Hi!</span><span class="ch">\n</span><span class="st">'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> application(environ, start_response):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># going to be suspended</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    fut: Future <span class="op">=</span> defer_to_another_thread()</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">yield</span> fut</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># gets resumed</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    start_response(<span class="st">'200 OK'</span>, [(<span class="st">'Content-type'</span>, <span class="st">'text/plain'</span>)])</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">yield</span> <span class="st">b'Hi!</span><span class="ch">\n</span><span class="st">'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>In this proposal, Future can be of any kind, whether from <code>asyncio</code> or from <code>concurrent.futures</code>. For WSGI+, it’s only important to know whether it was successful, and if not, to be able to fetch the traceback.</p>
 <p>It’s worth noting that the WSGI+ application bears the responsibility of handling both the result and the potential errors during the Future execution. The WSGI+ server, on the other hand, will ensure the proper propagation of any unhandled errors.</p>
 </section>
 <section id="proof-of-concept" class="level3">
