@@ -186,7 +186,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># gets resumed</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    start_response(<span class="st">'200 OK'</span>, [(<span class="st">'Content-type'</span>, <span class="st">'text/plain'</span>)])</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">yield</span> <span class="st">b'Hi!</span><span class="ch">\n</span><span class="st">'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>In this proposal, Future can be of any kind, whether from <code>asyncio</code> or from <code>concurrent.futures</code>. For WSGI+, it’s only important to know whether it was successful, and if not, to be able to fetch the traceback.</p>
+<p>In this proposal, Future can be of any kind, whether from <code>asyncio</code>, or from <code>concurrent.futures</code>. For WSGI+, it’s only important to know whether it was successful, and if not, to be able to fetch the traceback.</p>
 <p>It’s worth noting that the WSGI+ application bears the responsibility of handling both the result and the potential errors during the Future execution. The WSGI+ server, on the other hand, will ensure the proper propagation of any unhandled errors.</p>
 </section>
 <section id="proof-of-concept" class="level3">
